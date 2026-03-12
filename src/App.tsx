@@ -55,14 +55,21 @@ export default function App() {
   const [currentUser, setCurrentUser] = useLocalStorage<UserAccount | null>('current_user', null);
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('current_user'));
   const [loginData, setLoginData] = useState({ username: '', password: '' });
+ 
   const [technicianName, setTechnicianName] = useState(() => {
+  try {
     const savedUser = localStorage.getItem('current_user');
     if (savedUser) {
       const user = JSON.parse(savedUser);
-      return user.username;
+      if (user && user.username) {
+        return user.username;
+      }
     }
-    return localStorage.getItem('tech_name') || '';
-  });
+  } catch (e) {
+    console.error("Erro lendo usuário do localStorage", e);
+  }
+  return localStorage.getItem('tech_name') || '';
+});
   const [activities, setActivities] = useLocalStorage<Activity[]>('inspection_activities', ACTIVITIES);
   const [setup, setSetup] = useState({ activityType: activities[0]?.name || '', targetDistance: activities[0]?.target.toString() || '0' });
   const [inspection, setInspection] = useState<InspectionState | null>(null);
