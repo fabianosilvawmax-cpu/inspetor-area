@@ -1,0 +1,5 @@
+{
+  "name": "Inspetor de Área",
+  "description": "Aplicativo de inspeção visual com rastreamento de progresso por distância percorrida.",
+  "requestFramePermissions": ["geolocation"]
+}
