@@ -259,14 +259,45 @@ export default function App() {
     setShowIssueModal(false);
   };
 
-  const completeInspection = () => {
-    if (!inspection) return;
-    const completed = { ...inspection, isCompleted: true, isActive: false, endTime: Date.now() };
-    setHistory(prev => [completed, ...prev]);
-    setInspection(null);
-    setView('history');
+ 
+const completeInspection = async () => {
+  if (!inspection) return;
+
+  const completed = {
+    ...inspection,
+    isCompleted: true,
+    isActive: false,
+    endTime: Date.now()
   };
 
+  // salvar no histórico local
+  setHistory(prev => [completed, ...prev]);
+
+  // salvar no Supabase
+  if (supabase) {
+    try {
+      await supabase
+        .from("inspecoes")
+        .insert([
+          {
+            tecnico: completed.technicianName,
+            area: completed.activityType,
+            poste: completed.currentStreet,
+            servico: "vistoria",
+            latitude: completed.lastPosition?.lat || null,
+            longitude: completed.lastPosition?.lon || null,
+            data: new Date().toISOString(),
+            foto: completed.photos?.[0] || null
+          }
+        ]);
+    } catch (error) {
+      console.error("Erro ao salvar no Supabase:", error);
+    }
+  }
+
+  setInspection(null);
+  setView("history");
+};
   const deleteHistoryItem = (id: string) => {
     if (currentUser?.role !== 'admin') return;
     if (window.confirm("Deseja realmente excluir este registro?")) {
